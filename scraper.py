@@ -4,6 +4,8 @@
 Created on Thu May 11 10:16:45 2023
 
 @author: john-simonbachhuber
+DataScraper für Angebote von Flink, folgende Daten werden ermittelt:
+Produktname, Angebotspreis, Normalpreis, Menge(Verpackung), Produktlink
 """
 
 import requests
