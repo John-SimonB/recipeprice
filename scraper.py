@@ -11,7 +11,7 @@ import requests
 from bs4 import BeautifulSoup
 from harperDB import insert_item, delete_all_items, get_all_item, delete_item
 
-url = "https://www.bringmeister.de/k/obst-und-gemuese"
+url = "https://www.bringmeister.de/k/brot-backwaren-und-brotaufstriche"
 def scrape_data(URL):
 
     response = requests.get(url)
@@ -45,7 +45,7 @@ def scrape_data(URL):
             "link": "www.bringmeister.de" + str(link),
             "package": "10 KG"
         }
-        #insert_item(data[id])
+        insert_item(data[id])
     return data
         
 
@@ -55,6 +55,7 @@ def scrape_data(URL):
 #insert_item(data)
 #insert_item(product)
 #productlist.append(product)
+#print(get_all_item())
 
 
 
