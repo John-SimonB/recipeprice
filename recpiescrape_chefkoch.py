@@ -23,12 +23,13 @@ def chefkoch_scrape(URL):
                     menge_wert += char
                 elif char.isalpha():
                     menge_einheit += char
-
+                
             # Speichere die Zutatendaten im Dictionary
             zutaten_dict[zutat] = {
                 'menge_wert': menge_wert,
                 'menge_einheit': menge_einheit
             }
+    print(zutaten_dict)
     return zutaten_dict
 
 chefkoch_scrape(url)
