@@ -16,7 +16,13 @@ def chefkoch_scrape(URL):
             zutat = data[i + 1]
 
             # Trenne die Mengenangabe in Wert und Einheit
-            menge_wert, menge_einheit = menge[:-1], menge[-1]  # Letztes Zeichen entfernen
+            menge_wert = ""
+            menge_einheit = ""
+            for char in menge:
+                if char.isdigit():
+                    menge_wert += char
+                elif char.isalpha():
+                    menge_einheit += char
 
             # Speichere die Zutatendaten im Dictionary
             zutaten_dict[zutat] = {
@@ -25,4 +31,4 @@ def chefkoch_scrape(URL):
             }
     return zutaten_dict
 
-#chefkoch_scrape(url)
+chefkoch_scrape(url)
