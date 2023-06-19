@@ -14,24 +14,16 @@ app = createApp('REZEPTE')
 
 
 products = exceltodict()
-print(products[:2])
-selected_products = []  # Liste für ausgewählte Produkte
 
 
 @app.route("/", methods=["POST", "GET"])  # Pfade der Webpage
 def home():
-    global selected_products
-
     if request.method == 'POST':
         query = request.form.get('query')
-        category = request.form.get('category')
-        action = request.form.get('action')  # Neu: Aktion (hinzufügen/entfernen)
-        product_name = request.form.get('product_name')  # Neu: Name des ausgewählten Produkts
+        category = request.args.get('category')
     else:
         query = request.args.get('query')
         category = request.args.get('category')
-        action = request.args.get('action')
-        product_name = request.args.get('product_name')
 
     if query:
         for original, replacement in search_words:
@@ -65,18 +57,8 @@ def home():
         else:
             results = products[:50]
         message = None
-
-    if action == 'add':  # Neu: Produkt zur ausgewählten Liste hinzufügen
-        selected_product = next((product for product in products if product['name'] == product_name), None)
-        if selected_product:
-            selected_products.append(selected_product)
-    elif action == 'remove':  # Neu: Produkt aus der ausgewählten Liste entfernen
-        selected_products = [product for product in selected_products if product['name'] != product_name]
-
-    total_price = sum(product['price'] for product in selected_products)  # Gesamtpreis berechnen
-
-    return render_template('home.html', products=results, selected_products=selected_products, total_price=total_price, message=message)
-
+    
+    return render_template('home.html', products=results, message=message)
 
 
 

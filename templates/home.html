@@ -1,6 +1,38 @@
 {% extends "base.html" %} {% block title %}Projektbeschreibung{% endblock %} {% block content %}
 
+<h2>Ausgewählte Produkte:</h2>
+<table>
+    <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Preis</th>
+        <th>Menge</th>
+        <th>Einheit</th>
+        <th>Kategorie</th>
+        <th></th>
+    </tr>
+    {% for product in selected_products %}
+        <tr>
+            <td class="product-tile">
+                <img src="{{ product.icon }}" alt="{{ product.name }}">
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.menge }}</td>
+            <td>{{ product.einheit }}</td>
+            <td>{{ product.kategorie.capitalize() }}</td>
+            <td>
+                <form action="/" method="POST" style="display: inline;">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="product_name" value="{{ product.name }}">
+                    <button type="submit">Entfernen</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
 
+<h2>Gesamtpreis: {{ total_price }}</h2>
 
 <form method="GET">
     <input type="text" name="query" placeholder="Suchbegriff eingeben">
@@ -27,28 +59,34 @@
             <th>Menge</th>
             <th>Einheit</th>
             <th>Kategorie</th>
+            <th></th>
         </tr>
         {% for product in products %}
-            <tr>
-                <td class="product-tile">
-                    <img src="{{ product.icon }}" alt="{{ product.name }}">
-                </td>
-                <td class="product-tile">{{ product.name }}</td>
-                <td class="product-tile">{{ product.price }}</td>
-                <td class="product-tile">{{ product.menge }}</td>
-                <td class="product-tile">{{ product.einheit }}</td>
-                <td class="product-tile">{{ product.kategorie.capitalize() }}</td>
-            
-            </tr>
-        {% endfor %}
+        <tr>
+            <td class="product-tile">
+                <img src="{{ product.icon }}" alt="{{ product.name }}">
+            </td>
+            <td class="product-tile">{{ product.name }}</td>
+            <td class="product-tile">{{ product.price }}</td>
+            <td class="product-tile">{{ product.menge }}</td>
+            <td class="product-tile">{{ product.einheit }}</td>
+            <td class="product-tile">{{ product.kategorie.capitalize() }}</td>
+            <td class="product-tile">
+                <form action="/" method="POST">
+                    <input type="hidden" name="action" value="add"> <!-- Verstecktes Feld, um die Aktion zu identifizieren -->
+                    <input type="hidden" name="product_name" value="{{ product.name }}"> <!-- Verstecktes Feld, um den Namen des Produkts zu übergeben -->
+                    <button type="submit">Hinzufügen</button> <!-- Button zum Hinzufügen des Produkts -->
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
     </table>
 </ul>
-
-
 
 {% if message %}
     <p>{{ message }}</p>
 {% endif %}
+
 
 <style>
     th {
