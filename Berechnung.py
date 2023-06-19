@@ -1,5 +1,6 @@
-from recpiescrape_chefkoch import chefkoch_scrape
+from Chefkoch_Scrape import chefkoch_scrape
 from scraper import get_all_item
+from API import SingleAPICall
 
 def calculate_recipe_cost(zutaten, preise):
     total_cost = 0
@@ -12,7 +13,7 @@ def calculate_recipe_cost(zutaten, preise):
             for produkt in preise:
                 if produkt['title'] == zutat_name:
                     preis = float(produkt['normal_price'].replace(',', '.'))
-                    package_size = float(produkt['package'].split()[0])
+                    package_size = float(produkt['menge_wert'])
                     
                     if einheit == 'g':
                         total_cost += (preis / package_size) * menge
@@ -24,8 +25,8 @@ def calculate_recipe_cost(zutaten, preise):
     
     return total_cost
 
-zutaten = [{'Mehl': {'menge_wert': '500', 'menge_einheit': 'g'}, 'Hefe frische': {'menge_wert': '4', 'menge_einheit': 'g'}}]
+zutaten = [{'Mehl': {'menge_wert': '500', 'menge_einheit': 'g'}, 'Olivenöl': {'menge_wert': '4', 'menge_einheit': 'ml'}}]
 
 
-recipe_cost = calculate_recipe_cost(zutaten, get_all_item())
+recipe_cost = round(calculate_recipe_cost(zutaten, get_all_item()), 2)
 print("Gesamtpreis des Rezepts: " + str(recipe_cost) + "€")
