@@ -12,7 +12,7 @@ import requests
 from bs4 import BeautifulSoup
 from harperDB import insert_item, delete_all_items, get_all_item, delete_item
 
-url = "https://www.bringmeister.de/k/brot-backwaren-und-brotaufstriche"
+url = "https://www.bringmeister.de/k/kuehlregal"
 def scrape_data(URL):
 
     response = requests.get(url)
@@ -23,7 +23,7 @@ def scrape_data(URL):
 
     #delete_all_items()
     for item in items:
-        product_name = item.find('a', class_='product-name').text.strip()
+        product_name = item.find('a', class_='product-name').text.strip().replace("Ã¶", "ö").replace("Ã¼", "ü").replace("Ã¤","ä")
         prices = item.find('div', class_='price-container').text.strip()
         link = item.find('a', class_='product-name')['href']
         packung = item.find('div', class_='small-info')
@@ -56,7 +56,6 @@ def scrape_data(URL):
             menge_einheit = "kg"
         
             
-        print(menge_einheit)
         price_splited = prices.split("\n")
         
         #Preis für das Produkt ermitteln und entsprechend formatieren
@@ -77,19 +76,19 @@ def scrape_data(URL):
             "menge_wert": menge_wert,
             "menge_einheit": menge_einheit
         }
-        #print(data)
-        insert_item(data[id])
+        print(product_name)
+        #insert_item(data[id])
+        print(len(data))
     return data
-        
 
 
-scrape_data(url)
+#scrape_data(url)
 #delete_all_items()
 #insert_item(data)
 #insert_item(product)
 #productlist.append(product)
 #print(get_all_item())
 
-
-
-
+#idee keine angebote scrapen sondern immer nur die normalen preise
+#so könnte ich mit einer tabelle arbeiten und müsste nicht alte preise erstezen (produkt ist nicht mehr im angebot)
+#außerdem würde so nur einmal im monat scrapen reichen (programm läuft schneller)
