@@ -3,6 +3,7 @@ from test import exceltodict,fuzzy_search
 from search_optimierung import search_words
 from fuzzywuzzy import fuzz
 from collections import defaultdict
+from Chefkoch_Scrape import chefkoch_scrape
 
 
 def createApp(secretKey):
@@ -14,7 +15,6 @@ app = createApp('REZEPTE')
 
 
 products = exceltodict()
-print(products[:2])
 selected_products = []  # Liste für ausgewählte Produkte
 
 
@@ -27,11 +27,19 @@ def home():
         category = request.form.get('category')
         action = request.form.get('action')  # Neu: Aktion (hinzufügen/entfernen)
         product_name = request.form.get('product_name')  # Neu: Name des ausgewählten Produkts
+        link = request.form.get('console_link')  # Neu: Link aus dem Formular erhalten
     else:
         query = request.args.get('query')
         category = request.args.get('category')
         action = request.args.get('action')
         product_name = request.args.get('product_name')
+        link = request.form.get('console_link')  # Neu: Link aus dem Formular erhalten
+
+    if link:
+        print(link)
+        print("")
+        recipelist = chefkoch_scrape(link)
+        print(recipelist)
 
     if query:
         for original, replacement in search_words:

@@ -1,4 +1,9 @@
 {% extends "base.html" %} {% block title %}Projektbeschreibung{% endblock %} {% block content %}
+<form action="/" method="POST">
+    <input type="text" name="console_link" placeholder="Link eingeben"> <!-- Eingabefeld für den Link -->
+    <button type="submit">Suchen</button>
+</form>
+
 
 <h2>Ausgewählte Produkte:</h2>
 <table>
@@ -34,6 +39,8 @@
 
 <h2>Gesamtpreis: {{ total_price }}</h2>
 
+
+
 <form method="GET">
     <input type="text" name="query" placeholder="Suchbegriff eingeben">
     <select name="category" id="category">
@@ -46,10 +53,13 @@
         <option value="konserven-fertiggerichte">Konserven/Fertiggerichte</option>
         <option value="eis">Eis</option>
         <option value="tiefkuehl">TK (Tiefkühl)</option>
+
         <!-- Weitere Kategorien hier einfügen -->
-    </select>
+    </select>    
     <button type="submit">Suchen</button>
 </form>
+
+
 <ul>
     <table>
         <tr>
