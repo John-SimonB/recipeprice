@@ -30,7 +30,7 @@ def home():
         category = request.form.get('category')
         action = request.form.get('action')  # Neu: Aktion (hinzufügen/entfernen)
         product_name = request.form.get('product_name')  # Neu: Name des ausgewählten Produkts
-        link = request.form.get('console_link')  # Neu: Link aus dem Formular erhalten
+        link = request.form.get('console_link') 
         if action == 'weiter':  # Neu: Überprüfen, ob der Benutzer auf den Button "weiter" geklickt hat
             current_recipe_index += 1  # Index für das nächste Rezept erhöhen
     else:
@@ -39,11 +39,11 @@ def home():
         action = request.args.get('action')
         product_name = request.args.get('product_name')
         link = request.args.get('console_link')  # Neu: Link aus dem Formular erhalten
-    
+
     if link:
-        if(len(recipelist) >= 1):
-            recipelist.clear()
-            current_recipe_index = 0
+        recipelist.clear()
+        current_recipe_index = 0
+        selected_products.clear()
         recipelist.append(chefkoch_scrape(link))
         if(recipelist is not None):
             for original, replacement in search_words:
@@ -77,8 +77,9 @@ def home():
             else:
                 results = products[:50]
             message = None
-        print(current_recipe_index)
-    
+    if action == "clear":
+        recipelist.clear()
+        selected_products.clear()
 
     if action == "weiter":
         if(recipelist is not None):
@@ -115,7 +116,8 @@ def home():
                 results = [product for product in products if product['kategorie'] == category]
             else:
                 results = products[:50]
-            message = None        
+            message = None 
+       
         
     if query:
         if ' ' in query:
@@ -126,11 +128,9 @@ def home():
                 replaced_word = word.lower()  # Standardmäßig das Wort in Kleinbuchstaben
                 
                 if word.isdigit():
-                    print(word + " wurde übersprungen")
                     continue
 
                 if replaced_word in skip_words:
-                    print(word + " wurde übersprungen")
                     continue
 
                 for original, replacement in search_words:
@@ -200,23 +200,34 @@ def home():
 
     # button zum löschen des rezeptes einfügen
     if action == 'add':  # Neu: Produkt zur ausgewählten Liste hinzufügen
+        selected_product = next((product for product in products if product['name'] == product_name), None) 
+        if(recipelist):  
+            print("recipe") 
+            ### weiter umrechnung einfügen mit if schleifen
+            ##
+            #
+            ##  BETA
+            ###
+            ###
+            ###
+            umrechnung = float(recipelist[0][current_recipe_index][1]) / 1000  # Umwandlung von Gramm in Kilogramm
+            price_per_unit = selected_product['price'] / float(selected_product['menge'])
 
-        selected_product = next((product for product in products if product['name'] == product_name), None)        
-        #price_per_unit = selected_product['price'] / float(selected_product['menge'])
-        #amount = recipelist[0][0][1]
-        #print(amount)
-        #print(price_per_unit)
-        #total_price = price_per_unit * amount
-        #data = {
-        #    "name": selected_product["name"],
-        #    "price": selected_product["price"],
-        #    "menge": selected_product["menge"],
-        #    "einheit": selected_product["einheit"],
-        #    "icon": selected_product["icon"],
-        #    "kategorie": selected_product["kategorie"]
-        #}
-        if selected_product:
-            selected_products.append(selected_product)
+            total_price = umrechnung * price_per_unit
+            data = {
+                "name": selected_product["name"],
+                "price": total_price,
+                "menge": selected_product["menge"],
+                "einheit": selected_product["einheit"],
+                "icon": selected_product["icon"],
+                "kategorie": selected_product["kategorie"]
+            }
+            selected_products.append(data)
+        else: 
+            if selected_product:
+                print(selected_product)
+                print("basdasd")
+                selected_products.append(selected_product)
     elif action == 'remove':  # Neu: Produkt aus der ausgewählten Liste entfernen
         selected_products = [product for product in selected_products if product['name'] != product_name]
 
@@ -227,7 +238,6 @@ def home():
         current_recipe = recipelist[current_recipe_index]
     else:
         current_recipe = None
-
     return render_template('home.html', query=query, products=results, default_query=default_query, selected_products=selected_products, total_price=total_price, message=message, recipelist=recipelist, current_recipe=current_recipe)
 
 
