@@ -21,6 +21,7 @@ def chefkoch_scrape(URL):
             td_right_contents = [td_right.text.strip() for td_right in td_right_elements]
 
             td_left_contents = [content.strip().replace(" ", "") if content.strip() != "" else "0g" for content in td_left_contents]
+            td_right_contents = [content.strip().replace(",", "") if content.strip() != "" else "" for content in td_right_contents]
 
             data = []
 
@@ -41,6 +42,6 @@ def chefkoch_scrape(URL):
     else:
         return False
 
-url = "https://www.chefkoch.de/rezepte/1151011221381450/Der-beste-Pizzateig.html"
-print(chefkoch_scrape(url))
+#url = "https://www.chefkoch.de/rezepte/700651172648139/Murmels-Nudelsalat.html"
+#chefkoch_scrape(url)
 
