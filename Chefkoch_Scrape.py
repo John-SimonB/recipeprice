@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import uuid
-
+import re
 
 
 
@@ -9,34 +9,38 @@ def chefkoch_scrape(URL):
     if "https://www.chefkoch.de/rezepte/" in URL:
         response = requests.get(URL)
         if response.status_code == 200:
-            print(response)
             soup = BeautifulSoup(response.text, 'html.parser')
             name = soup.find("h1").text.strip()
             ingredients = soup.find_all('table', class_='ingredients')
             products = []
-            for ingredient in ingredients:
-                data = [span.text.strip().replace(' ', '').replace(',', ' ') for span in ingredient.find_all('span') if span.text.strip()]
-                for i in range(0, len(data), 2):
-                    if i + 1 < len(data):
-                        menge = data[i]
-                        zutat = data[i + 1]
+            products.append(name)
+            td_left_elements = soup.find_all("td", class_="td-left")
+            td_right_elements = soup.find_all("td", class_="td-right")
 
-                        # Trenne die Mengenangabe in Wert und Einheit
-                        menge_wert = ""
-                        menge_einheit = ""
-                        for char in menge:
-                            if char.isdigit():
-                                menge_wert += char
-                            elif char.isalpha():
-                                menge_einheit += char
+            td_left_contents = [td_left.text.strip() for td_left in td_left_elements]
+            td_right_contents = [td_right.text.strip() for td_right in td_right_elements]
 
-                        # Speichere die Zutatendaten im Dictionary
-                        product = [zutat, menge_wert, menge_einheit]
-                        products.append(product)
+            td_left_contents = [content.strip().replace(" ", "") if content.strip() != "" else "0g" for content in td_left_contents]
+
+            data = []
+
+            for i in range(min(len(td_left_contents), len(td_right_contents))):
+                left_content = td_left_contents[i]
+                right_content = td_right_contents[i]
+
+                if left_content != "0g":
+                    amount = "".join(filter(str.isdigit, left_content))
+                    unit = "".join(filter(str.isalpha, left_content))
+                else:
+                    amount, unit = "0", "g"
+
+                product = [right_content, amount, unit]
+                products.append(product)
+            
             return products
     else:
         return False
 
-#url = "https://www.chefkoch.de/rezepte/820481186558221/Zitronenkuchen.html"
-#print(chefkoch_scrape(url))
+url = "https://www.chefkoch.de/rezepte/1151011221381450/Der-beste-Pizzateig.html"
+print(chefkoch_scrape(url))
 
