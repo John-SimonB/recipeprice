@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for, render_template, request
 from test import exceltodict,fuzzy_search
-from search_optimierung import search_words
+from search_optimierung import search_words, skip_words
 from fuzzywuzzy import fuzz
 from collections import defaultdict
 from Chefkoch_Scrape import chefkoch_scrape
@@ -21,6 +21,7 @@ recipelist = []
 
 @app.route("/", methods=["POST", "GET"])  # Pfade der Webpage
 def home():
+    
     global selected_products
     global current_recipe_index
     default_query = ""
@@ -115,44 +116,105 @@ def home():
             else:
                 results = products[:50]
             message = None        
-        print(current_recipe_index)
         
     if query:
-        for original, replacement in search_words:
-            query = query.lower().replace(original.lower(), replacement.lower())
+        if ' ' in query:
+            query_words = query.split()  # Teile die Query in einzelne Wörter auf
+            results = []  # Ergebnisliste initialisieren
             default_query = query
-        fuzzy_results = []
-        for product in products:
-            product_name = product['name'].lower()
-            ratio = fuzz.ratio(query, product_name)
-            if ratio >= 70:
-                fuzzy_results.append(product)
-        normal_results = [product for product in products if query in product['name'].lower()]
+            for word in query_words:
+                replaced_word = word.lower()  # Standardmäßig das Wort in Kleinbuchstaben
+                
+                if word.isdigit():
+                    print(word + " wurde übersprungen")
+                    continue
 
-        if category:  # Neue Bedingung: Nur nach Kategorie filtern, wenn eine Kategorie angegeben ist
-            fuzzy_results = [product for product in fuzzy_results if product['kategorie'] == category]
-            normal_results = [product for product in normal_results if product['kategorie'] == category]
+                if replaced_word in skip_words:
+                    print(word + " wurde übersprungen")
+                    continue
 
-        results = fuzzy_results + normal_results
-        unique_results = defaultdict(list)
-        for product in results:
-            unique_results[(product['name'], product['kategorie'])].append(product)
-        results = [product for sublist in unique_results.values() for product in sublist]
-        results = results[:20]
+                for original, replacement in search_words:
+                    if word.lower() == original.lower():  # Überprüfe, ob das Wort ersetzt werden muss
+                        replaced_word = replacement.lower()
+                        break
+                
+                fuzzy_results = []
+                for product in products:
+                    product_name = product['name'].lower()
+                    ratio = fuzz.ratio(replaced_word, product_name)
+                    if ratio >= 60:
+                        fuzzy_results.append(product)
+                
+                normal_results = [product for product in products if replaced_word in product['name'].lower()]
 
-        if len(results) == 0:
-            message = 'Produkt nicht gefunden'
+                if category:
+                    fuzzy_results = [product for product in fuzzy_results if product['kategorie'] == category]
+                    normal_results = [product for product in normal_results if product['kategorie'] == category]
+
+                results.extend(fuzzy_results + normal_results)
+            
+            # Entferne Duplikate aus den Ergebnissen
+            unique_results = defaultdict(list)
+            for product in results:
+                unique_results[(product['name'], product['kategorie'])].append(product)
+            results = [product for sublist in unique_results.values() for product in sublist]
+            results = results[:600]
+
+            if len(results) == 0:
+                message = 'Produkt nicht gefunden'
+            else:
+                message = None
         else:
-            message = None
+            for original, replacement in search_words:
+                query = query.lower().replace(original.lower(), replacement.lower())
+                default_query = query
+            fuzzy_results = []
+            for product in products:
+                product_name = product['name'].lower()
+                ratio = fuzz.ratio(query, product_name)
+                if ratio >= 80:
+                    fuzzy_results.append(product)
+            normal_results = [product for product in products if query in product['name'].lower()]
+
+            if category:  # Neue Bedingung: Nur nach Kategorie filtern, wenn eine Kategorie angegeben ist
+                fuzzy_results = [product for product in fuzzy_results if product['kategorie'] == category]
+                normal_results = [product for product in normal_results if product['kategorie'] == category]
+
+            results = fuzzy_results + normal_results
+            unique_results = defaultdict(list)
+            for product in results:
+                unique_results[(product['name'], product['kategorie'])].append(product)
+            results = [product for sublist in unique_results.values() for product in sublist]
+            results = results[:50]
+
+            if len(results) == 0:
+                message = 'Produkt nicht gefunden'
+            else:
+                message = None
     else:
         if category:  # Neue Bedingung: Nur Produkte der angegebenen Kategorie anzeigen
             results = [product for product in products if product['kategorie'] == category]
         else:
-            results = products[:50]
+            results = products[:500]
         message = None
 
+    # button zum löschen des rezeptes einfügen
     if action == 'add':  # Neu: Produkt zur ausgewählten Liste hinzufügen
-        selected_product = next((product for product in products if product['name'] == product_name), None)
+
+        selected_product = next((product for product in products if product['name'] == product_name), None)        
+        #price_per_unit = selected_product['price'] / float(selected_product['menge'])
+        #amount = recipelist[0][0][1]
+        #print(amount)
+        #print(price_per_unit)
+        #total_price = price_per_unit * amount
+        #data = {
+        #    "name": selected_product["name"],
+        #    "price": selected_product["price"],
+        #    "menge": selected_product["menge"],
+        #    "einheit": selected_product["einheit"],
+        #    "icon": selected_product["icon"],
+        #    "kategorie": selected_product["kategorie"]
+        #}
         if selected_product:
             selected_products.append(selected_product)
     elif action == 'remove':  # Neu: Produkt aus der ausgewählten Liste entfernen
