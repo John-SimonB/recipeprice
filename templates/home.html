@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block title %}Projektbeschreibung{% endblock %} {% block content %}
 <p>https://www.chefkoch.de/rezepte/820481186558221/Zitronenkuchen.html</p>
 <p>https://www.chefkoch.de/rezepte/1151011221381450/Der-beste-Pizzateig.html</p>
-
+<p>https://www.chefkoch.de/rezepte/700651172648139/Murmels-Nudelsalat.html</p>
 
 <form action="/" method="POST">
     <input type="text" name="console_link" placeholder="Link eingeben">
@@ -45,6 +45,7 @@
 {% endif %}
 {% if recipelist %}
 <p>Aus dem eingegeben Rezept wird nach: {{ default_query }} gesucht</p>
+{{recipelist}}
 {% endif %}
 <form method="GET">
     <input type="text" name="query" placeholder="Suchbegriff eingeben" value="{{ default_query }}">
