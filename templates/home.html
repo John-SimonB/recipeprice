@@ -42,6 +42,9 @@
 </table>
 
 <h2>Gesamtpreis: {{ total_price }}</h2>
+{% if info %}
+<p>{{info}}</p>
+{% endif %}
 {% endif %}
 {% if recipelist %}
 <p>Aus dem eingegeben Rezept wird nach: {{ default_query }} gesucht</p>
@@ -51,6 +54,7 @@
     <button type="submit">rezept löschen</button> <!-- Button zum Fortfahren zum nächsten Produkt -->
 </form>
 {% endif %}
+
 
 <form method="GET">
     <input type="text" name="query" placeholder="Suchbegriff eingeben" value="{{ default_query }}">
