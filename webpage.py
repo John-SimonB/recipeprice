@@ -4,7 +4,7 @@ from search_optimierung import search_words, skip_words
 from fuzzywuzzy import fuzz
 from collections import defaultdict
 from Chefkoch_Scrape import chefkoch_scrape
-
+from Berechnung import calculate_price, convert_quantity
 
 def createApp(secretKey):
     app = Flask(__name__)
@@ -25,6 +25,7 @@ def home():
     global selected_products
     global current_recipe_index
     default_query = ""
+    info = None
     if request.method == 'POST':
         query = request.form.get('query')
         category = request.form.get('category')
@@ -201,44 +202,36 @@ def home():
     # button zum löschen des rezeptes einfügen
     if action == 'add':  # Neu: Produkt zur ausgewählten Liste hinzufügen
         selected_product = next((product for product in products if product['name'] == product_name), None) 
-        if(recipelist):  
-            print("recipe") 
-            ### weiter umrechnung einfügen mit if schleifen
-            ##
-            #
-            ##  BETA
-            ###
-            ###
-            ###
-            umrechnung = float(recipelist[0][current_recipe_index][1]) / 1000  # Umwandlung von Gramm in Kilogramm
-            price_per_unit = selected_product['price'] / float(selected_product['menge'])
+        if(recipelist):             
+            if(recipelist[0][current_recipe_index][2] == "X"):
+                info = "Das eingetragen Rezept enthält Zutaten mit ungenauen Mengenangaben. Der Preis kann nicht genau berechnet werden"
 
-            total_price = umrechnung * price_per_unit
+            total_price = calculate_price(recipelist[0][current_recipe_index], selected_product)
             data = {
                 "name": selected_product["name"],
-                "price": total_price,
-                "menge": selected_product["menge"],
-                "einheit": selected_product["einheit"],
+                "price": round(total_price[0],2),
+                "menge": recipelist[0][current_recipe_index][1],
+                "einheit": recipelist[0][current_recipe_index][2],
                 "icon": selected_product["icon"],
-                "kategorie": selected_product["kategorie"]
+                 "kategorie": selected_product["kategorie"]
             }
             selected_products.append(data)
         else: 
             if selected_product:
+                info = None
                 print(selected_product)
-                print("basdasd")
                 selected_products.append(selected_product)
     elif action == 'remove':  # Neu: Produkt aus der ausgewählten Liste entfernen
         selected_products = [product for product in selected_products if product['name'] != product_name]
 
-    total_price = sum(product['price'] for product in selected_products)  # Gesamtpreis berechnen
+    total_price = round(sum(product['price'] for product in selected_products),2) # Gesamtpreis berechnen
 
     # Aktuelles Rezept abrufen
     if current_recipe_index < len(recipelist):
         current_recipe = recipelist[current_recipe_index]
     else:
         current_recipe = None
-    return render_template('home.html', query=query, products=results, default_query=default_query, selected_products=selected_products, total_price=total_price, message=message, recipelist=recipelist, current_recipe=current_recipe)
+    return render_template('home.html', info=info, query=query, products=results, default_query=default_query, selected_products=selected_products, total_price=total_price, message=message, recipelist=recipelist, current_recipe=current_recipe)
 
 
 

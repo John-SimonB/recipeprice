@@ -1,32 +1,84 @@
-from Chefkoch_Scrape import chefkoch_scrape
-from scraper import get_all_item
-from API import SingleAPICall
+def convert_quantity(quantity, from_unit, to_unit):
+    conversion_factors = {
+        'g': {
+            'kg': 0.001,
+            'ml': None  # Keine direkte Umrechnung möglich
+        },
+        'kg': {
+            'g': 1000,
+            'ml': None  # Keine direkte Umrechnung möglich
+        },
+        'l': {
+            'ml': 1000,
+            'g': None  # Keine direkte Umrechnung möglich
+        },
+        'ml': {
+            'l': 0.001,
+            'g': None  # Keine direkte Umrechnung möglich
+        },
+        'TL': {
+            'g': 5,
+            'kg': 0.005,
+            'ml': 5,  
+            'l': 0.005
+        },
+        'EL': {
+            'g': 13,
+            'kg': 0.013,
+            'ml': 15,  
+            'l': 0.015
+        },
+        'X': {
+            'g': None,
+            'kg': None,
+            'ml': None,  
+            'l': None
+        }
+    }
 
-def calculate_recipe_cost(zutaten, preise):
-    total_cost = 0
+    if from_unit == to_unit:
+        return quantity, True  # Gleiche Einheit
+
+    conversion_factor = conversion_factors.get(from_unit, {}).get(to_unit)
+
+    if conversion_factor is None:
+        return None, False  # Keine gültige Umrechnung möglich
+
+    converted_quantity = quantity * conversion_factor
+    return converted_quantity, False
+
+
+# Beispielaufruf:
+artikel_aus_rezept = ['Weizenmehl Type 405', '2', 'l']
+
+datenbank_fuer_berechnung = {
+    'name': 'Rewe Beste Wahl Weizenmehl Type 405 1kg',
+    'price': 1.29,
+    'menge': '1',
+    'einheit': 'kg',
+    'icon': 'https://res.cloudinary.com/goflink/image/upload/w_600,h_800/product-images-prod/9a8bf872-ac62-48dc-a0a4-c9672dc37ecb.png',
+    'kategorie': 'dauerguenstig'
+}
+
+#print(convert_quantity(1, "kg", "g"))
+
+def calculate_price(recipe_article, database_article):
+    converted_quantity = convert_quantity(float(recipe_article[1]), recipe_article[2], database_article["einheit"])
+    if(converted_quantity[1] == True):
+        price_per_unit = database_article["price"] / float(database_article["menge"])
+        total_price = float(recipe_article[1]) * price_per_unit
+        message = "gleiche Einheit"
+        return total_price, message
+    elif(converted_quantity[0] == None and converted_quantity[1] == False):
+        total_price = 0
+        message = "Einheit nicht gefunden, oder Umrechnung nicht möglich"
+        return total_price, message
+    else:
+        price_per_unit = database_article["price"] / float(database_article["menge"])
+        total_price = converted_quantity[0] * price_per_unit
+        message = "verschiedene Einheien"
+        return total_price, message
     
-    for zutat in zutaten:
-        for zutat_name, zutat_info in zutat.items():
-            menge = float(zutat_info['menge_wert'])
-            einheit = zutat_info['menge_einheit']
-            
-            for produkt in preise:
-                if produkt['title'] == zutat_name:
-                    preis = float(produkt['normal_price'].replace(',', '.'))
-                    package_size = float(produkt['menge_wert'])
-                    
-                    if einheit == 'g':
-                        total_cost += (preis / package_size) * menge
-                    elif einheit == 'ml':
-                        total_cost += (preis / package_size) * menge
-                    elif einheit == 'kg':
-                        total_cost += (preis / package_size) * menge
-                    break
-    
-    return total_cost
-
-zutaten = [{'Mehl': {'menge_wert': '500', 'menge_einheit': 'g'}, 'Olivenöl': {'menge_wert': '4', 'menge_einheit': 'ml'}}]
 
 
-recipe_cost = round(calculate_recipe_cost(zutaten, get_all_item()), 2)
-print("Gesamtpreis des Rezepts: " + str(recipe_cost) + "€")
+
