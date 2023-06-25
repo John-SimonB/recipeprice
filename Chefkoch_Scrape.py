@@ -11,7 +11,6 @@ def chefkoch_scrape(URL):
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             name = soup.find("h1").text.strip()
-            ingredients = soup.find_all('table', class_='ingredients')
             products = []
             products.append(name)
             td_left_elements = soup.find_all("td", class_="td-left")
@@ -28,12 +27,18 @@ def chefkoch_scrape(URL):
             for i in range(min(len(td_left_contents), len(td_right_contents))):
                 left_content = td_left_contents[i]
                 right_content = td_right_contents[i]
-
-                if left_content != "0g":
-                    amount = "".join(filter(str.isdigit, left_content))
-                    unit = "".join(filter(str.isalpha, left_content))
+                if any(char.isalpha() for char in left_content):
+                    if left_content != "0g":
+                        amount = "".join(filter(str.isdigit, left_content))
+                        unit = "".join(filter(str.isalpha, left_content))
+                    if "½" in left_content:
+                        amount = "0,5"
+                        unit = "".join(filter(str.isalpha, left_content))
+                        print(amount, unit)
+                    else:
+                        amount, unit = "0", "g"
                 else:
-                    amount, unit = "0", "g"
+                    amount, unit = "".join(filter(str.isdigit, left_content)), "X"
 
                 product = [right_content, amount, unit]
                 products.append(product)
@@ -43,5 +48,5 @@ def chefkoch_scrape(URL):
         return False
 
 #url = "https://www.chefkoch.de/rezepte/700651172648139/Murmels-Nudelsalat.html"
-#chefkoch_scrape(url)
+#print(chefkoch_scrape(url))
 
