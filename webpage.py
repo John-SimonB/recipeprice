@@ -1,5 +1,5 @@
 from flask import Flask, redirect, url_for, render_template, request
-from test import exceltodict,fuzzy_search
+from LoadData import exceltodict,fuzzy_search
 from search_optimierung import search_words, skip_words
 from fuzzywuzzy import fuzz
 from collections import defaultdict
@@ -237,4 +237,4 @@ def home():
 
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=False, host="0.0.0.0") 
