@@ -43,12 +43,12 @@ def home():
 
     if link:
         recipelist.clear()
-        current_recipe_index = 0
         selected_products.clear()
+        current_recipe_index = 0
         recipelist.append(chefkoch_scrape(link))
         if(recipelist is not None):
             for original, replacement in search_words:
-                query = recipelist[0][0][0]
+                query = recipelist[0][1][0]
             fuzzy_results = []
             for product in products:
                 product_name = product['name'].lower()
@@ -237,4 +237,4 @@ def home():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0") 
+    app.run(debug=False) 

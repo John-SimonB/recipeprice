@@ -4,10 +4,9 @@ import uuid
 import re
 
 
-
 def chefkoch_scrape(URL):
     if "https://www.chefkoch.de/rezepte/" in URL:
-        response = requests.get(URL)
+        response = requests.get(URL, timeout=3)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             name = soup.find("h1").text.strip()
