@@ -11,7 +11,24 @@ def chefkoch_scrape(URL):
             soup = BeautifulSoup(response.text, 'html.parser')
             name = soup.find("h1").text.strip()
             products = []
+
+            subtitle = soup.find("p", class_="recipe-text").text.strip()
+
+            element = soup.find(class_="ds-box recipe-author bi-recipe-author")
+
+            if element:
+                span_element = element.find('span').text.strip().split()
+                author = span_element[len(span_element) -1 ]
+
+
+            image_element = soup.find("img", class_="i-amphtml-fill-content i-amphtml-replaced-content")
+            if image_element:
+                image_src = image_element["src"]
+
             products.append(name)
+            products.append(author)
+            products.append(image_src)
+            products.append(subtitle)
             td_left_elements = soup.find_all("td", class_="td-left")
             td_right_elements = soup.find_all("td", class_="td-right")
 
@@ -33,15 +50,15 @@ def chefkoch_scrape(URL):
                     if "½" in left_content:
                         amount = "0,5"
                         unit = "".join(filter(str.isalpha, left_content))
-                        print(amount, unit)
                     else:
-                        amount, unit = "0", "g"
+                        amount = "".join(filter(str.isdigit, left_content))
+                        unit = "".join(filter(str.isalpha, left_content))
                 else:
                     amount, unit = "".join(filter(str.isdigit, left_content)), "X"
 
                 product = [right_content, amount, unit]
-                products.append(product)
-            
+                data.append(product)
+            products.append(data)
             return products
     else:
         return False

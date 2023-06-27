@@ -48,7 +48,7 @@ def home():
         recipelist.append(chefkoch_scrape(link))
         if(recipelist is not None):
             for original, replacement in search_words:
-                query = recipelist[0][1][0]
+                query = recipelist[0][4][0][0]
             fuzzy_results = []
             for product in products:
                 product_name = product['name'].lower()
@@ -86,7 +86,7 @@ def home():
         if(recipelist is not None):
             for original, replacement in search_words:
                 if current_recipe_index < len(recipelist[0]):
-                    query = recipelist[0][current_recipe_index][0]
+                    query = recipelist[0][4][current_recipe_index][0]
                 else:
                     query = ""
             fuzzy_results = []
@@ -205,13 +205,13 @@ def home():
         if(recipelist):             
             if(recipelist[0][current_recipe_index][2] == "X"):
                 info = "Das eingetragen Rezept enthält Zutaten mit ungenauen Mengenangaben. Der Preis kann nicht genau berechnet werden"
-
-            total_price = calculate_price(recipelist[0][current_recipe_index], selected_product)
+            print(recipelist[0][4][current_recipe_index][1])
+            total_price = calculate_price(recipelist[0][4][current_recipe_index], selected_product)
             data = {
                 "name": selected_product["name"],
                 "price": round(total_price[0],2),
-                "menge": recipelist[0][current_recipe_index][1],
-                "einheit": recipelist[0][current_recipe_index][2],
+                "menge": recipelist[0][4][current_recipe_index][1],
+                "einheit": recipelist[0][4][current_recipe_index][2],
                 "icon": selected_product["icon"],
                  "kategorie": selected_product["kategorie"]
             }
@@ -237,4 +237,4 @@ def home():
 
 
 if __name__ == '__main__':
-    app.run(debug=False) 
+    app.run(debug=True) 
