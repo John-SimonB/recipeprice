@@ -1,0 +1,353 @@
+{% extends "base.html" %} {% block title %}Projektbeschreibung{% endblock %} {% block content %}
+{% if recipelist %}
+<div class="card-container">
+    <div class="card u-clearfix">
+      <div class="card-body">
+        <span class="card-number card-circle subtle"></span>
+        <span class="card-author subtle">test</span>
+        <h2 class="card-title">123123</h2>
+        <span class="card-description subtle">sdfasdf</span>
+
+
+        {% if selected_products %}
+        <div class="card-text">Warenkorb:</div>
+        <table>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Preis</th>
+                <th>Menge</th>
+                <th>Einheit</th>
+                <th></th>
+            </tr>
+            {% for product in selected_products %}
+                <tr>
+                    <td>
+                        <img class="image_selected_products" src="{{ product.icon }}" alt="{{ product.name }}">
+                    </td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.price }}</td>
+                    <td>{{ product.menge }}</td>
+                    <td>{{ product.einheit }}</td>
+                    <td>
+                        <form action="/" method="POST" style="display: inline;">
+                            <input type="hidden" name="action" value="remove">
+                            <input type="hidden" name="product_name" value="{{ product.name }}">
+                            <button type="submit" class="x_button">
+                                <div class="close-container">
+                                    <div class="leftright"></div>
+                                    <div class="rightleft"></div>
+                                  </div>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% if info %}
+        <p>{{info}}</p>
+        {% endif %}
+        <h2>Gesamtpreis: {{ total_price }}</h2>
+        {% endif %}
+        <span class="card-tag card-circle subtle">C</span>
+      </div>
+      <img src="asd" alt="" class="card-media" />
+    </div>
+    <div class="card-shadow"></div>
+  </div>
+  {% endif %}
+
+
+<p>https://www.chefkoch.de/rezepte/820481186558221/Zitronenkuchen.html</p>
+<p>https://www.chefkoch.de/rezepte/1151011221381450/Der-beste-Pizzateig.html</p>
+<p>https://www.chefkoch.de/rezepte/700651172648139/Murmels-Nudelsalat.html</p>
+
+<form action="/" method="POST">
+    <input type="text"  name="console_link" placeholder="Link eingeben">
+    <button id="linkbutton" type="submit">Suchen</button>
+</form>
+
+{% if selected_products %}
+
+{% endif %}
+{% if recipelist %}
+<p>Aus dem eingegeben Rezept wird nach: {{ default_query }} gesucht</p>
+{{recipelist}}
+<form action="/" method="POST">
+    <input type="hidden" name="action" value="clear"> <!-- Verstecktes Feld, um die Aktion zu identifizieren -->
+    <button type="submit">rezept löschen</button> <!-- Button zum Fortfahren zum nächsten Produkt -->
+</form>
+{% endif %}
+
+
+<form method="GET">
+    <input type="text" name="query" placeholder="Suchbegriff eingeben" value="{{ default_query }}">
+    <select name="category" id="category">
+        <option value="">Alle Kategorien</option>
+        <option value="obst">Obst</option>
+        <option value="gemuese">Gemüse</option>
+        <option value="backwaren">Backwaren</option>
+        <option value="backen-dessert">Backen-dessert</option>
+        <option value="kaffee-tee-kakao">Kaffe/Kakao</option>
+        <option value="saucen-oele-gewuerze">Saucen/Öle/Gewürze</option>
+        <option value="konserven-fertiggerichte">Konserven/Fertiggerichte</option>
+        <option value="eis">Eis</option>
+        <option value="tiefkuehl">TK (Tiefkühl)</option>
+
+        <!-- Weitere Kategorien hier einfügen -->
+    </select>    
+    <button type="submit">Suchen</button>
+</form>
+{% if recipelist %}
+    <form action="/" method="POST">
+        <input type="hidden" name="action" value="weiter"> <!-- Verstecktes Feld, um die Aktion zu identifizieren -->
+        <button type="submit">Weiter</button> <!-- Button zum Fortfahren zum nächsten Produkt -->
+    </form>
+{% endif %}
+
+<ul>
+    <table>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Preis</th>
+            <th>Menge</th>
+            <th>Einheit</th>
+            <th>Kategorie</th>
+            <th></th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td class=>
+                <img class="image_selected_products" src="{{ product.icon }}" alt="{{ product.name }}">
+            </td>
+            <td >{{ product.name }}</td>
+            <td >{{ product.price }}</td>
+            <td >{{ product.menge }}</td>
+            <td >{{ product.einheit }}</td>
+            <td >{{ product.kategorie.capitalize() }}</td>
+            <td >
+                <form action="/" method="POST">
+                    <input type="hidden" name="action" value="add"> <!-- Verstecktes Feld, um die Aktion zu identifizieren -->
+                    <input type="hidden" name="product_name" value="{{ product.name }}"> <!-- Verstecktes Feld, um den Namen des Produkts zu übergeben -->
+                    <button type="submit">Hinzufügen</button> <!-- Button zum Hinzufügen des Produkts -->
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+</ul>
+
+{% if message %}
+    <p>{{ message }}</p>
+{% endif %}
+
+
+<style>
+table {
+    width: 100%; /* Tabelle auf 100% der verfügbaren Breite setzen */
+}
+
+th.name-column,
+td.name-cell {
+    width: auto; /* Automatische Breite für die Spaltenüberschrift und Zellen in der Name-Spalte */
+    white-space: nowrap; /* Verhindern, dass der Text in der Zelle umbrochen wird */
+}
+
+
+
+.image_selected_products{
+    height: 20px;
+    width: 20px;
+}   
+.x_button {
+    background-color: white;
+    border: None;
+}
+
+
+
+html {
+  background: #FAF7F2;
+  background-image: url(https://s3.postimg.org/s1n3ji1ur/paper_fibers_2_X.png);
+  box-sizing: border-box;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+.u-clearfix:before,
+.u-clearfix:after {
+  content: " ";
+  display: table;
+}
+
+.u-clearfix:after {
+  clear: both;
+}
+
+.u-clearfix {
+  *zoom: 1;
+}
+
+.subtle {
+  color: #aaa;
+}
+
+.card-container {
+  margin: 25px auto 0;
+  position: relative;
+  width: 900px;
+}
+
+.card {
+  background-color: #fff;
+  padding: 30px;
+  position: relative;
+  box-shadow: 0 0 5px rgba(75, 75, 75, .07);
+  z-index: 1;
+}
+
+.card-body {
+  display: inline-block;
+  float: left;
+  width: 310px;
+}
+
+.card-number {
+  margin-top: 15px;
+}
+
+.card-circle {
+  border: 1px solid #aaa;
+  border-radius: 50%;
+  display: inline-block;
+  line-height: 22px;
+  font-size: 12px;
+  height: 25px;
+  text-align: center;
+  width: 25px;
+}
+
+.card-author {
+  display: block;
+  font-size: 12px;
+  letter-spacing: .5px;
+  margin: 15px 0 0;
+  text-transform: uppercase;
+}
+
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 60px;
+  font-weight: 300;
+  line-height: 60px;
+  margin: 0px 0;
+}
+
+.card-description {
+  display: inline-block;
+  font-weight: 300;
+  line-height: 22px;
+  margin: 10px 0;
+}
+
+.card-read {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  margin: 5px 0 20px;
+  position: relative;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.card-read:after {
+  background-color: #b8bddd;
+  content: "";
+  display: block;
+  height: 1px;
+  position: absolute;
+  top: 9px;
+  width: 75%;
+}
+
+.card-tag {
+  float: right;
+  margin: 5px 0 0;
+}
+
+.card-media {
+  float: right;
+}
+
+.card-shadow {
+  background-color: #fff;
+  box-shadow: 0 2px 25px 2px rgba(0, 0, 0, 1), 0 2px 50px 2px rgba(0, 0, 0, 1), 0 0 100px 3px rgba(0, 0, 0, .25);
+  height: 1px;
+  margin: -1px auto 0;
+  width: 80%;
+  z-index: -1;
+}
+
+
+
+
+
+
+
+
+
+.close-container{
+  position: relative;
+  margin: auto;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.leftright{
+  height: 2px;
+  width: 20px;
+  position: absolute;
+  margin-top: 24px;
+  background-color: #F4A259;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  transition: all .3s ease-in;
+}
+
+.rightleft{
+  height: 2px;
+  width: 20px;
+  position: absolute;
+  margin-top: 24px;
+  background-color: #F4A259;
+  border-radius: 2px;
+  transform: rotate(-45deg);
+  transition: all .3s ease-in;
+}
+
+.close-container:hover .leftright{
+  transform: rotate(-45deg);
+  background-color: #F25C66;
+}
+.close-container:hover .rightleft{
+  transform: rotate(45deg);
+  background-color: #F25C66;
+}
+.close-container:hover label{
+  opacity: 1;
+}
+
+
+
+
+
+</style>
+{% endblock content %}
