@@ -33,7 +33,21 @@ def convert_quantity(quantity, from_unit, to_unit):
             'kg': None,
             'ml': None,  
             'l': None
-        }
+        },
+        'Stk': {
+            'g': None,
+            'kg': None,
+            'ml': None,  
+            'l': None,
+            'St': 1,
+        },
+        'St': {
+            'g': None,
+            'kg': None,
+            'ml': None,  
+            'l': None,
+            'Stk': 1,
+        },
     }
 
     if from_unit == to_unit:
@@ -49,13 +63,13 @@ def convert_quantity(quantity, from_unit, to_unit):
 
 
 # Beispielaufruf:
-artikel_aus_rezept = ['Weizenmehl Type 405', '2', 'l']
+artikel_aus_rezept = ['Weizenmehl Type 405', '0.5', 'Stk']
 
 datenbank_fuer_berechnung = {
     'name': 'Rewe Beste Wahl Weizenmehl Type 405 1kg',
-    'price': 1.29,
+    'price': 1.00,
     'menge': '1',
-    'einheit': 'kg',
+    'einheit': 'St',
     'icon': 'https://res.cloudinary.com/goflink/image/upload/w_600,h_800/product-images-prod/9a8bf872-ac62-48dc-a0a4-c9672dc37ecb.png',
     'kategorie': 'dauerguenstig'
 }
@@ -63,22 +77,29 @@ datenbank_fuer_berechnung = {
 #print(convert_quantity(1, "kg", "g"))
 
 def calculate_price(recipe_article, database_article):
-    converted_quantity = convert_quantity(float(recipe_article[1]), recipe_article[2], database_article["einheit"])
-    if(converted_quantity[1] == True):
-        price_per_unit = database_article["price"] / float(database_article["menge"])
-        total_price = float(recipe_article[1]) * price_per_unit
-        message = "gleiche Einheit"
-        return total_price, message
-    elif(converted_quantity[0] == None and converted_quantity[1] == False):
-        total_price = 0
-        message = "Einheit nicht gefunden, oder Umrechnung nicht möglich"
-        return total_price, message
+    if(recipe_article[2] == "Stk" or recipe_article[2] == "St"):
+        if(database_article["einheit"] == "Stk" or database_article["einheit"] == "St"):
+            price_per_unit = database_article["price"] / float(database_article["menge"])
+            total_price = float(recipe_article[1]) * price_per_unit 
+            message = "gleiche Einheit (Stk)"
+            return total_price, message
+        else:
+            total_price = database_article["price"]
     else:
-        price_per_unit = database_article["price"] / float(database_article["menge"])
-        total_price = converted_quantity[0] * price_per_unit
-        message = "verschiedene Einheien"
-        return total_price, message
-    
-
-
-
+        converted_quantity = convert_quantity(float(recipe_article[1]), recipe_article[2], database_article["einheit"])
+        if(converted_quantity[1] == True):
+            price_per_unit = database_article["price"] / float(database_article["menge"])
+            total_price = float(recipe_article[1]) * price_per_unit
+            message = "gleiche Einheit"
+            return total_price, message
+        elif(converted_quantity[0] == None and converted_quantity[1] == False):
+            total_price = database_article["price"]
+            message = "Einheit nicht gefunden, oder Umrechnung nicht möglich"
+            return total_price, message
+        else:
+            price_per_unit = database_article["price"] / float(database_article["menge"])
+            total_price = converted_quantity[0] * price_per_unit
+            message = "verschiedene Einheien"
+            return total_price, message
+        
+#calculate_price(artikel_aus_rezept, datenbank_fuer_berechnung)

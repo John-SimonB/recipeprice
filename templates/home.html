@@ -57,54 +57,63 @@
   </div>
   {% endif %}
 
+  {% if selected_products and not recipelist %}
+  <div class="card-text">Warenkorb:</div>
+  <table class="card-table">
+      <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Preis</th>
+          <th>Menge</th>
+          <th>Einheit</th>
+          <th></th>
+      </tr>
+      {% for product in selected_products %}
+          <tr>
+              <td>
+                  <img class="image_selected_products" src="{{ product.icon }}" alt="{{ product.name }}">
+              </td>
+              <td>{{ product.name }}</td>
+              <td>{{ product.price }}</td>
+              <td>{{ product.menge }}</td>
+              <td>{{ product.einheit }}</td>
+              <td>
+                  <form action="/" method="POST" style="display: inline;">
+                      <input type="hidden" name="action" value="remove">
+                      <input type="hidden" name="product_name" value="{{ product.name }}">
+                      <button type="submit" class="x_button">
+                          <div class="close-container">
+                              <div class="leftright"></div>
+                              <div class="rightleft"></div>
+                            </div>
+                      </button>
+                  </form>
+              </td>
+          </tr>
+      {% endfor %}
+  </table>
+  {% if info %}
+  <p>{{info}}</p>
+  {% endif %}
+  <h2>Gesamtpreis: {{ total_price }}</h2>
+  {% endif %}
+
 <p>https://www.chefkoch.de/rezepte/820481186558221/Zitronenkuchen.html</p>
-<p>https://www.chefkoch.de/rezepte/1151011221381450/Der-beste-Pizzateig.html</p>
 <p>https://www.chefkoch.de/rezepte/700651172648139/Murmels-Nudelsalat.html</p>
+<p>https://www.chefkoch.de/rezepte/2520621395238605/Spargel-Brotsalat.html</p>
+<p>https://www.chefkoch.de/rezepte/509691146579678/Hackbraten-auf-italienische-Art.html</p>
+<p>https://www.chefkoch.de/rezepte/1069361212490339/Haehnchen-Ananas-Curry-mit-Reis.html?portionen=4</p>
+<p>https://www.chefkoch.de/rezepte/2352371374010722/Cremiger-Nudelauflauf-mit-Tomaten-und-Mozzarella.html?portionen=4</p>
+<p>https://www.chefkoch.de/rezepte/4219311682325252/Panzanella-mit-Bohnen-Rucola-und-Vinaigrette.html?portionen=4</p>
+<p>https://www.chefkoch.de/rezepte/1256981231159532/Lachs-Sahne-Gratin.html?portionen=4</p>
+<p>https://www.chefkoch.de/rezepte/351351120485193/Fantakuchen-mit-Mandarinen-Schmand.html</p>
+<p>https://www.chefkoch.de/rezepte/3116611464630134/Bulgur-Buddha-Bowl.html?portionen=4</p>
 
 <form action="/" method="POST">
     <input type="text" name="console_link" placeholder="Link eingeben">
     <button type="submit">Suchen</button>
 </form>
 
-{% if selected_products %}
-<h2>Ausgewählte Produkte:</h2>
-<table>
-    <tr>
-        <th></th>
-        <th>Name</th>
-        <th>Preis</th>
-        <th>Menge</th>
-        <th>Einheit</th>
-        <th>Kategorie</th>
-        <th></th>
-    </tr>
-    {% for product in selected_products %}
-        <tr>
-            <td class="product-tile">
-                <img class="img-list" 
-                src="{{ product.icon }}" alt="{{ product.name }}">
-            </td>
-            <td>{{ product.name }}</td>
-            <td>{{ product.price }}</td>
-            <td>{{ product.menge }}</td>
-            <td>{{ product.einheit }}</td>
-            <td>{{ product.kategorie.capitalize() }}</td>
-            <td>
-                <form action="/" method="POST" style="display: inline;">
-                    <input type="hidden" name="action" value="remove">
-                    <input type="hidden" name="product_name" value="{{ product.name }}">
-                    <button type="submit">Entfernen</button>
-                </form>
-            </td>
-        </tr>
-    {% endfor %}
-</table>
-
-<h2>Gesamtpreis: {{ total_price }}</h2>
-{% if info %}
-<p>{{info}}</p>
-{% endif %}
-{% endif %}
 {% if recipelist %}
 <p>Aus dem eingegeben Rezept wird nach: {{ default_query }} gesucht</p>
 {{recipelist}}
@@ -127,7 +136,9 @@
         <option value="saucen-oele-gewuerze">Saucen/Öle/Gewürze</option>
         <option value="konserven-fertiggerichte">Konserven/Fertiggerichte</option>
         <option value="eis">Eis</option>
+        <option value="eier-milch">Eier-Milch</option>
         <option value="tiefkuehl">TK (Tiefkühl)</option>
+        <option value="fleisch-fisch">Fleisch-Fisch</option>
 
         <!-- Weitere Kategorien hier einfügen -->
     </select>    
@@ -180,6 +191,22 @@
 
 
 <style>
+  .card-table{
+    margin: 10px auto;
+    border-radius: 10px;
+    width: 80%;
+  }
+  .card-table th{
+    padding: 20px;
+    vertical-align: middle;
+  }
+  .card-table td{
+    border-bottom: 1px solid black;
+    padding: 2px;
+    text-align: center
+  }
+
+
     th {
         font-size: 30px;
         padding: 10px
@@ -209,8 +236,6 @@
 
 
 html {
-  background: #FAF7F2;
-  background-image: url(https://s3.postimg.org/s1n3ji1ur/paper_fibers_2_X.png);
   box-sizing: border-box;
   font-family: 'Lato', sans-serif;
   font-size: 14px;
@@ -246,7 +271,7 @@ html {
 }
 
 .card {
-  background-color: #fff;
+  background-color: #FAF7F2;
   padding: 30px;
   position: relative;
   box-shadow: 0 0 5px rgba(75, 75, 75, .07);

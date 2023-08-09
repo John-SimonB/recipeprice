@@ -42,6 +42,7 @@ def AllProductsAPI(urls):
     }
 
     response = requests.request("GET", url, headers=headers, data=payload, timeout=10).json()
+    print(response)
     responses.append(response)
 
   return responses
@@ -60,29 +61,29 @@ def SafeProducts(ResponseLIST):
   items = []
   for Response in ResponseLIST:
     categories = Response["categories"]
-    kategorie = Response["slug"]
+    categorie = Response["slug"]
     for category in categories:
       products = category["products"]["products"]
       for product in products:
         product_name = product["name"]
         price = product["price"]["amount"]
-        menge = extract_data(product_name)
+        amount = extract_data(product_name)
         if "thumbnail" in product:
           icon = product["thumbnail"]
         else: 
           icon = ""
-        if menge:
-          menge = extract_data(product_name)
+        if amount:
+          amount = extract_data(product_name)
         else:
-          menge = [0,0]
-        item = {
-          "name" : product_name,
-          "price" : price,
-          "menge" : menge[0],
-          "einheit" : menge[1],
-          "icon" : icon,
-          "kategorie" : kategorie
-        }
+          amount = [0,0]
+          item = {
+            "name" : product_name,
+            "price" : price,
+            "menge" : amount[0],
+            "einheit" : amount[1],
+            "icon" : icon,
+            "kategorie" : categorie
+          }
         items.append(item)
 
   print(items)

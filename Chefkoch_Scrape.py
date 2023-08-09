@@ -8,15 +8,17 @@ def chefkoch_scrape(URL):
     if "https://www.chefkoch.de/rezepte/" in URL:
         response = requests.get(URL, timeout=3)
         if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
+            soup = BeautifulSoup(response.text, 'html.parser') 
             name = soup.find("h1").text.strip()
             products = []
 
-            subtitle = soup.find("p", class_="recipe-text").text.strip()
-
-            element = soup.find(class_="ds-box recipe-author bi-recipe-author")
-
-            if element:
+            subtitle_element = soup.find("p", class_="recipe-text")
+            if subtitle_element:
+                subtitle = subtitle_element.text.strip()
+            else:
+                subtitle = ""
+            if soup.find(class_="ds-box recipe-author bi-recipe-author"):
+                element = soup.find(class_="ds-box recipe-author bi-recipe-author")
                 span_element = element.find('span').text.strip().split()
                 author = span_element[len(span_element) -1 ]
 
@@ -45,24 +47,26 @@ def chefkoch_scrape(URL):
                 right_content = td_right_contents[i]
                 if any(char.isalpha() for char in left_content):
                     if left_content != "0g":
-                        amount = "".join(filter(str.isdigit, left_content))
+                        amount = "".join(filter(str.isdigit, left_content)).replace(",", ".")
                         unit = "".join(filter(str.isalpha, left_content))
                     if "½" in left_content:
-                        amount = "0,5"
+                        amount = "0.5"
                         unit = "".join(filter(str.isalpha, left_content))
                     else:
-                        amount = "".join(filter(str.isdigit, left_content))
+                        amount = "".join(filter(str.isdigit, left_content)).replace(",", ".")
                         unit = "".join(filter(str.isalpha, left_content))
+                        if(unit.lower() == "etwas" or unit == "nb" or unit == "ein wenig" or unit == "prise" or unit == "ungefähr" or unit == "handvoll"):
+                            unit = "X"
                 else:
-                    amount, unit = "".join(filter(str.isdigit, left_content)), "X"
-
+                    amount, unit = "".join(filter(str.isdigit, left_content)), "Stk"
                 product = [right_content, amount, unit]
+                #print(product)
                 data.append(product)
             products.append(data)
             return products
     else:
         return False
 
-#url = "https://www.chefkoch.de/rezepte/700651172648139/Murmels-Nudelsalat.html"
-#print(chefkoch_scrape(url))
+url = "https://www.chefkoch.de/rezepte/1256981231159532/Lachs-Sahne-Gratin.html?portionen=4"
+print(chefkoch_scrape(url))
 
