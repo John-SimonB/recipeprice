@@ -10,14 +10,13 @@ def createApp(secretKey):
     app = Flask(__name__)
     app.config['SECRET_KEY'] = secretKey
     return app
+app = createApp('REZEPTEPREIS')
 
-app = createApp('REZEPTE')
 
-
-products = exceltodict()
+products = exceltodict() # Lädt alle Produkte aus der Excel-Datei in den Code
 selected_products = []  # Liste für ausgewählte Produkte
-current_recipe_index = 0  # Index für das aktuelle Rezept
-recipelist = []
+current_recipe_index = 0  # Index für das aktuelle Proukt im Rezept
+recipelist = [] # Gescrapte Rezeptdaten von Chefkoch
 
 @app.route("/", methods=["POST", "GET"])  # Pfade der Webpage
 def home():
@@ -85,7 +84,7 @@ def home():
     if action == "weiter":
         if(recipelist is not None):
             for original, replacement in search_words:
-                if current_recipe_index < len(recipelist[0]):
+                if current_recipe_index < len(recipelist[0][4]):
                     query = recipelist[0][4][current_recipe_index][0]
                 else:
                     query = ""
@@ -202,20 +201,34 @@ def home():
     # button zum löschen des rezeptes einfügen
     if action == 'add':  # Neu: Produkt zur ausgewählten Liste hinzufügen
         selected_product = next((product for product in products if product['name'] == product_name), None) 
-        if(recipelist):             
-            if(recipelist[0][current_recipe_index][2] == "X"):
+        if(recipelist):
+            if(recipelist[0][4][current_recipe_index][2].lower() == "x"):
                 info = "Das eingetragen Rezept enthält Zutaten mit ungenauen Mengenangaben. Der Preis kann nicht genau berechnet werden"
-            print(recipelist[0][4][current_recipe_index][1])
-            total_price = calculate_price(recipelist[0][4][current_recipe_index], selected_product)
-            data = {
-                "name": selected_product["name"],
-                "price": round(total_price[0],2),
-                "menge": recipelist[0][4][current_recipe_index][1],
-                "einheit": recipelist[0][4][current_recipe_index][2],
-                "icon": selected_product["icon"],
-                 "kategorie": selected_product["kategorie"]
-            }
-            selected_products.append(data)
+                data = {
+                    "name": selected_product["name"],
+                    "price": selected_product["price"],
+                    "menge": selected_product["menge"],
+                    "einheit": selected_product["einheit"],
+                    "icon": selected_product["icon"],
+                    "kategorie": selected_product["kategorie"]
+                }
+                selected_products.append(data)
+            else: 
+                print(recipelist[0][4][current_recipe_index])
+                total_price = calculate_price(recipelist[0][4][current_recipe_index], selected_product)
+                if(total_price == None):
+                    total_price = selected_product["price"]
+                else:
+                    total_price = round(total_price[0],3)
+                data = {
+                    "name": selected_product["name"],
+                    "price": total_price,
+                    "menge": recipelist[0][4][current_recipe_index][1],
+                    "einheit": recipelist[0][4][current_recipe_index][2],
+                    "icon": selected_product["icon"],
+                    "kategorie": selected_product["kategorie"]
+                }
+                selected_products.append(data)
         else: 
             if selected_product:
                 info = None
